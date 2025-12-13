@@ -73,7 +73,6 @@ def main_gpu_replicate():
     # GRID SEARCH
     print("\nBuscando mejores hiperparámetros")
     
-    # Tu grid original exacto
     param_grid = {
         'C': [0.1, 1, 10, 100],
         'gamma': [1, 0.1, 0.01, 0.001, 'scale'],
