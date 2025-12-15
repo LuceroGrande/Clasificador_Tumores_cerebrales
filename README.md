@@ -16,4 +16,4 @@ Implementar un pipeline eficiente e interpretable para la clasificación de tumo
 Se incluye un experimento comparativo basado en píxeles crudos + PCA + SVM.
 
 ## Resultados
-Accuracy del pipeline principal: ~84%.
+Accuracy de FAST y BRIEF aproximadamentte 81% y por PIXELES un aproximado del 93%.
