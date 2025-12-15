@@ -22,7 +22,7 @@ def main_gpu_replicate():
 
     print("\nCargando CSV")
     try:
-        gdf = cudf.read_csv("features_data456.csv") 
+        gdf = cudf.read_csv("features_data456.csv")
     except FileNotFoundError:
         print("Error: Falta el archivo CSV.")
         return
@@ -31,7 +31,7 @@ def main_gpu_replicate():
     feature_cols = [c for c in gdf.columns if c.startswith('feat_')]
     X_descriptors = gdf[feature_cols].astype('float32')
 
-    K_CLUSTERS = 150
+    K_CLUSTERS = 1000
     print(f"\nEntrenando KMeans")
 
     kmeans = KMeans(n_clusters=K_CLUSTERS, random_state=42, n_init=10, max_iter=300)
@@ -60,10 +60,10 @@ def main_gpu_replicate():
 
     # NORMALIZACIÓN
     print("Normalizando histogramas")
-    X_final = cp.sqrt(X_final) 
-    
+    X_final = cp.sqrt(X_final)
+
     norms = cp.linalg.norm(X_final, axis=1, keepdims=True)
-    norms[norms == 0] = 1 
+    norms[norms == 0] = 1
     X_normalized = X_final / norms
 
     scaler = StandardScaler()
@@ -116,19 +116,19 @@ def main_gpu_replicate():
         subset_size = int(n_train_total * fraction)
         X_subset = X_train[:subset_size]
         y_subset = y_train[:subset_size]
-        
+
         model_lc = SVC(
-            kernel=best_params['kernel'], 
-            C=best_params['C'], 
-            gamma=best_params['gamma'], 
-            probability=True 
+            kernel=best_params['kernel'],
+            C=best_params['C'],
+            gamma=best_params['gamma'],
+            probability=True
         )
-        
+
         try:
             model_lc.fit(X_subset, y_subset)
             train_acc = accuracy_score(y_subset, model_lc.predict(X_subset))
             val_acc = accuracy_score(y_test, model_lc.predict(X_test))
-            
+
             train_scores.append(train_acc)
             val_scores.append(val_acc)
             print(f"  Subset {fraction*100:.0f}% -> Train: {train_acc:.4f} | Val: {val_acc:.4f}")
@@ -144,8 +144,8 @@ def main_gpu_replicate():
         plt.ylabel("Accuracy")
         plt.legend()
         plt.grid(True)
-        plt.show() 
-    
+        plt.show()
+
     y_pred = best_model.predict(X_test)
     y_test_cpu = cp.asnumpy(y_test)
     y_pred_cpu = cp.asnumpy(y_pred)
@@ -153,39 +153,39 @@ def main_gpu_replicate():
 
     print("\nGenerando Matriz de Confusión")
     cm = confusion_matrix(y_test_cpu, y_pred_cpu)
-    
+
     plt.figure(figsize=(8, 6))
     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=clases, yticklabels=clases)
     plt.title('Matriz de Confusión')
     plt.ylabel('Verdadero')
     plt.xlabel('Predicho')
     plt.tight_layout()
-    plt.show() 
+    plt.show()
 
     print("\nGenerando Curvas ROC")
-  
+
     # Obtener probabilidades
     y_score_gpu = best_model.predict_proba(X_test)
     y_score = cp.asnumpy(y_score_gpu)
-    
+
     # Binarizar etiquetas
     y_test_bin = label_binarize(y_test_cpu, classes=[0, 1, 2, 3])
     n_classes = y_test_bin.shape[1]
-    
+
     fpr = dict()
     tpr = dict()
     roc_auc = dict()
-    
+
     plt.figure(figsize=(10, 8))
     colors = ['blue', 'red', 'green', 'purple']
-    
+
     for i, color in zip(range(n_classes), colors):
         fpr[i], tpr[i], _ = roc_curve(y_test_bin[:, i], y_score[:, i])
         roc_auc[i] = auc(fpr[i], tpr[i])
-        
+
         plt.plot(fpr[i], tpr[i], color=color, lw=2,
                  label=f'ROC {clases[i]} (AUC = {roc_auc[i]:.2f})')
-                 
+
     plt.plot([0, 1], [0, 1], 'k--', lw=2) # Línea diagonal
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])
