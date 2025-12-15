@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from concurrent.futures import ProcessPoolExecutor
 import multiprocessing
 
+
+#dataset con caracteristicas obtenidas
 PATH_CARPETAS_CLASIFICADAS = "./dataset" 
 OUTPUT_CSV = "features_data456.csv"
 IMG_SIZE = (128, 128)
