@@ -15,19 +15,5 @@ Implementar un pipeline eficiente e interpretable para la clasificación de tumo
 
 Se incluye un experimento comparativo basado en píxeles crudos + PCA + SVM.
 
-## Estructura del repositorio
-brain-tumor-svm-parallel/
-├── README.md
-├── requirements.txt
-├── data/
-├── notebooks/
-├── src/
-├── results/
-└── docs/
-
-## Ejecución
-Pipeline principal:
-python src/build_bovw_svm_gpu.py
-
 ## Resultados
 Accuracy del pipeline principal: ~84%.
